@@ -2,7 +2,7 @@ require 'csv'
 require 'json'
 
 $root_dir = "/Users/Praveena/projects/damsel_in_distress"
-$path = "#{$root_dir}/data.csv"
+$path = "#{$root_dir}/data_back.csv"
 
 class Parser
 
@@ -25,19 +25,40 @@ class Analyser
     grouped = slice.group_by {|row| row.sex.downcase.to_sym}
     p grouped[:m].count
     p grouped[:f].count
-    p slice.count
-    p grouped.keys
+    #p slice.count
+    #p grouped.keys
     @grouped = grouped
   end
 
   def group_by_roles(slice)
-    grouped = slice.group_by {|row| row.title.downcase.to_sym}
-    p grouped.keys
-    grouped
+    slice.group_by {|row| row.title.downcase.to_sym}
   end
 
   def call_to_json(slice, path)
     slice.to_json
+  end
+
+  def form_json(data)
+    males = group_by_roles(data[:m])
+    females = group_by_roles(data[:f])
+    roles = males.keys.concat(females.keys).uniq
+    return_val = {}
+    roles.each do |role|
+      return_val[role] = [males[role].to_a.count, females[role].to_a.count]
+    end
+    return_val
+  end
+
+  def chart_json(data)
+    return_val = {}
+    label = ["Male", "Female"]
+    values = []
+    data.each do |role, value|
+      values << { 'label' => role, 'values' => value}
+    end
+    return_val['label'] = label    
+    return_val['values'] = values
+    return_val.to_json
   end
 
 end
@@ -55,11 +76,18 @@ class Row
   end
 end
 
+def write_to_file(data)
+  File.open("/Users/praveena/projects/damsel_in_distress/a.json", 'a') { |file| file.write(data) }
+end
+
 parser = Parser.new
 parser.parse()
 
 analyser = Analyser.new
 analyser.group_by_sex(parser.rows)
-s1 = analyser.group_by_roles(analyser.grouped[:m])
-s2 = analyser.group_by_roles(analyser.grouped[:f])
-File.open("/Users/praveena/projects/damsel_in_distress/a.json", 'w') { |file| file.write(s1.to_json) }
+role_to_gender = analyser.form_json(analyser.grouped)
+constructed_json = analyser.chart_json(role_to_gender)
+write_to_file(constructed_json)
+
+#s1 = analyser.group_by_roles(analyser.grouped[:m])
+#s2 = analyser.group_by_roles(analyser.grouped[:f])
