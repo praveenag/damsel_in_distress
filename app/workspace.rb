@@ -21,3 +21,7 @@ end
 def data_path
   "#{root_dir}/data_back.csv"
 end
+
+def write_to_file(filename, data)
+  File.open(filename, 'a') { |file| file.write(data) }
+end

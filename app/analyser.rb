@@ -1,26 +1,9 @@
 require './workspace'
 
-class Parser
-
-  attr_accessor :rows
-
-  def parse
-    rows = []
-    CSV.foreach(data_path) do |row|
-      rows << Row.new(row)
-    end
-    @rows = rows
-  end
-end
-
 class Analyser
 
   def group_by_sex(slice)
     slice.group_by { |row| row.sex.downcase.to_sym }
-  end
-
-  def group_by_roles(slice)
-    slice.group_by { |row| row.title.downcase.to_sym }
   end
 
   def role_to_gender_count(data)
@@ -49,11 +32,6 @@ class Analyser
     return_val['label'] = label
     return_val['values'] = values
     return_val.to_json
-  end
-
-  def group_by_experience(slice)
-    ranges = [Range.new(0, 3, true), Range.new(3, 5, true), Range.new(5, 7, true), Range.new(7, 9, true), Range.new(9, 11, true), Range.new(11, 100, true)]
-    slice.group_by { |row| ranges.find { |range| b = range.cover?(row.total_exp.to_f); p b; b } }
   end
 
   def gender_count_for_a_role(data, role)
@@ -85,54 +63,14 @@ class Analyser
     end
   end
 
-  def chart_json_by_experience(data)
-    return_val = {}
-    label = ["0-3", "3-5", "5-7", "7-9", "9-11", ">11"]
-    values = []
-    data.each do |range, value|
-      values << {'label' => range.to_s, 'values' => value}
-    end
-    return_val['label'] = label
-    return_val['values'] = values
-    return_val.to_json
+  private
+
+  def group_by_roles(slice)
+    slice.group_by { |row| row.title.downcase.to_sym }
   end
 
-end
-
-class Row
-
-  attr_accessor :name, :official_title, :title, :first_day, :sex, :office, :prior_exp, :tw_exp, :exp_in_contract, :total_exp
-
-  def initialize(row)
-    @name, @official_title, @title, @first_day, @sex, @office, @prior_exp, @tw_exp, @exp_in_contract, @total_exp = sanitize(row)
+  def group_by_experience(slice)
+    ranges = [Range.new(0, 3, true), Range.new(3, 5, true), Range.new(5, 7, true), Range.new(7, 9, true), Range.new(9, 11, true), Range.new(11, 100, true)]
+    slice.group_by { |row| ranges.find { |range| b = range.cover?(row.total_exp.to_f); p b; b } }
   end
-
-  def sanitize(row)
-    row.to_a.collect { |r| r.nil? ? "" : r.chomp(" ") }
-  end
-
-  def exp_as_date
-    Date.strptime(total_exp, "%d %b %y")
-  end
-end
-
-def write_to_file(filename, data)
-  File.open(filename, 'a') { |file| file.write(data) }
-end
-
-parser = Parser.new
-parser.parse()
-
-analyser = Analyser.new
-grouped_by_sex = analyser.group_by_sex(parser.rows)
-
-role_to_gender_count = analyser.role_to_gender_count(grouped_by_sex)
-constructed_json = analyser.chart_json(role_to_gender_count)
-write_to_file("#{gen_dir}/role_wise_split.json", constructed_json)
-
-role_to_gender = analyser.role_to_gender(grouped_by_sex)
-
-role_to_gender.each do |role, data|
-  data1 = analyser.gender_count_for_a_role(data, role)
-  write_to_file("#{gen_dir}/#{role.to_s}.json", analyser.chart_json(data1))
 end
