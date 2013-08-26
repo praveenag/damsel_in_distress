@@ -2,6 +2,7 @@ require 'csv'
 require 'json'
 
 $root_dir = "/Users/Praveena/projects/damsel_in_distress"
+$gen_dir = "#{$root_dir}/gen"
 $path = "#{$root_dir}/data_back.csv"
 
 class Parser
@@ -56,8 +57,8 @@ class Analyser
   end
 
   def group_by_experience(slice)
-    ranges = [Range.new(0,3,true), Range.new(3,5,true), Range.new(5,7,true), Range.new(7,9,true), Range.new(9,11,true), Range.new(11,100,true)]
-    slice.group_by {|row| ranges.find{|range| b = range.cover?(row.total_exp.to_f); p b; b }}
+    ranges = [Range.new(0, 3, true), Range.new(3, 5, true), Range.new(5, 7, true), Range.new(7, 9, true), Range.new(9, 11, true), Range.new(11, 100, true)]
+    slice.group_by { |row| ranges.find { |range| b = range.cover?(row.total_exp.to_f); p b; b } }
   end
 
   def gender_count_for_a_role(data, role)
@@ -68,7 +69,7 @@ class Analyser
 
     if data[:m].nil?
       if data[:f].nil?
-        return {:"no role"=>[0,0]}
+        return {:"no role" => [0, 0]}
       else
         females = group_by_experience(data[:f])
         exp_ranges = females.keys
@@ -132,11 +133,11 @@ grouped_by_sex = analyser.group_by_sex(parser.rows)
 
 role_to_gender_count = analyser.role_to_gender_count(grouped_by_sex)
 constructed_json = analyser.chart_json(role_to_gender_count)
-write_to_file("/Users/praveena/projects/damsel_in_distress/gen/role_wise_split.json", constructed_json)
+write_to_file("#{$gen_dir}/role_wise_split.json", constructed_json)
 
 role_to_gender = analyser.role_to_gender(grouped_by_sex)
 
 role_to_gender.each do |role, data|
   data1 = analyser.gender_count_for_a_role(data, role)
-  write_to_file("/Users/praveena/projects/damsel_in_distress/gen/#{role.to_s}.json", analyser.chart_json(data1))
+  write_to_file("#{$gen_dir}/#{role.to_s}.json", analyser.chart_json(data1))
 end
