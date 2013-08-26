@@ -63,7 +63,6 @@ function init(json) {
         Tips: {
             enable: true,
             onShow: function (tip, elem) {
-                console.log(elem)
                 tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.label + "&nbsp" + elem.value;
             }
         }
