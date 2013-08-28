@@ -6,15 +6,15 @@ class HtmlBuilder
     binding
   end
 
-  def html(json)
+  def html(json, template)
     @json = json
-    file = File.open("#{app_dir}/chart.html.erb", "rb")
+    file = File.open(template, "rb")
     template_string = file.read
     template = ERB.new template_string
     template.result(get_binding)
   end
 
-  def create_html(json, file)
-    write_to_file(file, html(json))
+  def create_html(json, file, template)
+    write_to_file(file, html(json, template))
   end
 end

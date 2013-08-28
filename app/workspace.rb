@@ -1,6 +1,7 @@
 require 'erb'
 require 'json'
 require 'csv'
+require 'fileutils'
 
 def root_dir
   "/Users/Praveena/projects/damsel_in_distress"
@@ -19,7 +20,16 @@ def app_dir
 end
 
 def data_path
-  "#{root_dir}/data_back.csv"
+  "#{root_dir}/jigsaw.csv"
+  #"#{root_dir}/data_back.csv"
+end
+
+def role_exp_template
+  "#{app_dir}/chart.html.erb"
+end
+
+def role_exp_grade_template
+  "#{app_dir}/chart_final.html.erb"
 end
 
 def write_to_file(filename, data)

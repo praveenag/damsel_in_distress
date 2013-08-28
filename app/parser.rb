@@ -1,5 +1,5 @@
-require './workspace'
-require './row'
+require '../app/workspace'
+require '../app/jigsaw_row'
 
 class Parser
 
@@ -7,8 +7,8 @@ class Parser
 
   def parse
     rows = []
-    CSV.foreach(data_path) do |row|
-      rows << Row.new(row)
+    CSV.open(data_path).drop(1).each do |row|
+      rows << JigsawRow.new(row)
     end
     @rows = rows
   end
