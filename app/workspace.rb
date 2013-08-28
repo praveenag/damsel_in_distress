@@ -7,8 +7,16 @@ def root_dir
   "/Users/Praveena/projects/damsel_in_distress"
 end
 
-def gen_dir
-  "#{root_dir}/gen"
+def role_gen
+  "#{root_dir}/role_gen"
+end
+
+def exp_gen(role)
+  "#{root_dir}/exp_gen/#{role.to_s}"
+end
+
+def grade_gen(role)
+  "#{root_dir}/grade_gen/#{role.to_s}"
 end
 
 def lib_dir
