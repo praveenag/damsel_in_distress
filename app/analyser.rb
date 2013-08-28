@@ -24,16 +24,6 @@ class Analyser
     return_val
   end
 
-  def chart_json(data)
-    return_val = {}
-    label = ["Male", "Female"]
-    values = []
-    data.each { |role, value| values << {'label' => role, 'values' => value} }
-    return_val['label'] = label
-    return_val['values'] = values
-    return_val.to_json
-  end
-
   def gender_count_for_a_role(data, role)
 
     p "nil m #{role}" if data[:m].nil?
@@ -46,24 +36,58 @@ class Analyser
       else
         females = group_by_experience(data[:f])
         exp_ranges = females.keys
-        exp_ranges.each { |exp_range| return_val[exp_range] = [0, females[exp_range].to_a.count] }
+        exp_ranges.each { |exp_range| return_val[exp_range] = percentile(0, females[exp_range].to_a.count) }
         return return_val
       end
     elsif data[:f].nil?
       males = group_by_experience(data[:m])
       exp_ranges = males.keys
-      exp_ranges.each { |exp_range| return_val[exp_range] = [males[exp_range].to_a.count, 0] }
-      return return_val
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, 0) }
+      return_val
     else
       males = group_by_experience(data[:m])
       females = group_by_experience(data[:f])
       exp_ranges = males.keys.concat(females.keys).uniq
-      exp_ranges.each { |exp_range| return_val[exp_range] = [males[exp_range].to_a.count, females[exp_range].to_a.count] }
-      return return_val
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, females[exp_range].to_a.count) }
+      return_val
+    end
+  end
+
+  def gender_count_for_a_role_2yrs(data, role)
+
+    p "nil m #{role}" if data[:m].nil?
+    p "nil f #{role}" if data[:f].nil?
+    return_val = {}
+
+    if data[:m].nil?
+      if data[:f].nil?
+        return {:"no role" => [0, 0]}
+      else
+        females = group_by_experience(data[:f])
+        exp_ranges = females.keys
+        exp_ranges.each { |exp_range| return_val[exp_range] = percentile(0, females[exp_range].to_a.count) }
+        return return_val
+      end
+    elsif data[:f].nil?
+      males = group_by_experience(data[:m])
+      exp_ranges = males.keys
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, 0) }
+      return_val
+    else
+      males = group_by_experience(data[:m])
+      females = group_by_experience(data[:f])
+      exp_ranges = males.keys.concat(females.keys).uniq
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, females[exp_range].to_a.count) }
+      return_val
     end
   end
 
   private
+
+  def percentile(val1, val2)
+    sum = 100/(val1+val2).to_f
+    [(val1*sum.to_f).round(2), (val2*sum.to_f).round(2)]
+  end
 
   def group_by_roles(slice)
     slice.group_by { |row| row.title.downcase.to_sym }

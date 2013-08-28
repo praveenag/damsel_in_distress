@@ -25,3 +25,7 @@ end
 def write_to_file(filename, data)
   File.open(filename, 'w') { |file| file.write(data) }
 end
+
+def append_to_file(filename, data)
+  File.open(filename, 'a') { |file| file.write(data) }
+end
