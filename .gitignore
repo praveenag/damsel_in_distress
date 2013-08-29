@@ -3,4 +3,6 @@ data_back.csv
 questions
 .idea/
 role_gen/
+grade_gen/
+exp_gen/
 jigsaw.csv

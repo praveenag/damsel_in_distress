@@ -38,7 +38,7 @@ class Orchestrator
     role_to_gender.each do |role, data|
       exp_range_split_data = @analyser.role_to_exp_range_sex(data)
       exp_range_split_data.each do |exp_range, data1|
-        grade_split_data = @analyser.gender_count_for_a_role_exp_range_grade(data1, exp_range)
+        grade_split_data = @analyser.gender_percentile_for_a_role_exp_range_grade(data1, exp_range)
         FileUtils.mkdir_p(exp_gen(role), :verbose => true)
         @html_builder.create_html(@json_builder.chart_json(grade_split_data),
                                   "#{exp_gen(role)}/#{exp_range.to_s}.html", role_exp_grade_template)
@@ -70,5 +70,5 @@ orchestrator = Orchestrator.new(parser)
 
 orchestrator.role_wise_split
 orchestrator.role_to_gender_to_exp
-#orchestrator.role_to_gender_to_exp_to_grade
-#orchestrator.grade_count_for_a_role_exp_range_gender
+orchestrator.role_to_gender_to_exp_to_grade
+orchestrator.grade_count_for_a_role_exp_range_gender
