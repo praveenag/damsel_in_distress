@@ -1,5 +1,4 @@
 require './workspace'
-require '../app/range'
 
 class Analyser
 
@@ -37,22 +36,22 @@ class Analyser
       else
         females = group_by_experience(data[:f])
         exp_ranges = females.keys
-        exp_ranges.each { |exp_range| return_val[exp_range] = percentile(0, females[exp_range].to_a.count) }
-        #exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(0, females[exp_range].to_a.count) }
+        #exp_ranges.each { |exp_range| return_val[exp_range] = percentile(0, females[exp_range].to_a.count) }
+        exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(0, females[exp_range].to_a.count) }
         sorted_hash(return_val)
       end
     elsif data[:f].nil?
       males = group_by_experience(data[:m])
       exp_ranges = males.keys
-      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, 0) }
-      #exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(males[exp_range].to_a.count, 0) }
+      #exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, 0) }
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(males[exp_range].to_a.count, 0) }
       sorted_hash(return_val)
     else
       males = group_by_experience(data[:m])
       females = group_by_experience(data[:f])
       exp_ranges = males.keys.concat(females.keys).uniq
-      exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, females[exp_range].to_a.count) }
-      #exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(males[exp_range].to_a.count, females[exp_range].to_a.count) }
+      #exp_ranges.each { |exp_range| return_val[exp_range] = percentile(males[exp_range].to_a.count, females[exp_range].to_a.count) }
+      exp_ranges.each { |exp_range| return_val[exp_range] = percentile_by_total(males[exp_range].to_a.count, females[exp_range].to_a.count) }
       sorted_hash(return_val)
     end
   end
@@ -69,12 +68,15 @@ class Analyser
       females_arr << m_f_array[1]
     end
     json = {}
-    p labels
-    p percentile_in_arr(males_arr)
-    p percentile_in_arr(females_arr)
-
     json['label'] = labels
-    json['values'] = [{'label' => 'male', 'values' => percentile_in_arr(males_arr)}, {'label' => 'female', 'values' => percentile_in_arr(females_arr)}]
+    json['values'] = [
+        {'label' => 'male',
+         'values' => percentile_in_arr(males_arr)
+        },
+        {'label' => 'female',
+         'values' => percentile_in_arr(females_arr)
+        }
+    ]
     json.to_json
   end
 

@@ -17,7 +17,8 @@
 
   <!-- Example File -->
   <script language="javascript" type="text/javascript">
-      var json = <%= @json %>
+      var json =
+      <%= @json %>
   </script>
   <script language="javascript" type="text/javascript">
       function loadData() {
@@ -32,6 +33,9 @@
 
   <div id="left-container">
     <div class="text">
+      <% unless @role.nil? %>
+          <h1><%= @role.upcase %>s in different experience groups in percentage. Males: <%= @males %> Females: <%= @females %></h1>
+      <% end %>
     </div>
     <ul id="id-list"></ul>
   </div>
